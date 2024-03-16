@@ -1,7 +1,11 @@
-import HomePage from "./pages/HomePage";
+import { Outlet } from "react-router-dom";
 
 const App = () => {
-  return <HomePage />;
+  return (
+    <div>
+      <Outlet />
+    </div>
+  );
 };
 
 export default App;
