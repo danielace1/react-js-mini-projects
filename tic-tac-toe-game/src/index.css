@@ -1,3 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.table-cell {
+  @apply bg-zinc-700 px-5 py-9 text-center rounded-lg shadow-lg;
+}
