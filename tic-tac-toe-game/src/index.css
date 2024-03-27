@@ -3,5 +3,5 @@
 @tailwind utilities;
 
 .table-cell {
-  @apply bg-zinc-700 px-5 py-9 text-center rounded-lg shadow-lg;
+  @apply bg-zinc-700 w-32 h-28 text-center rounded-lg shadow-lg;
 }
