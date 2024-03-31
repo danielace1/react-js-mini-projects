@@ -81,6 +81,7 @@ const VsCPU = () => {
           ["", "", ""],
           ["", "", ""],
           ["", "", ""],
+          setCurrentPlayer("X"),
           setCpuShouldPlay(false),
         ]);
       }, 1000); // Adjust delay as needed
