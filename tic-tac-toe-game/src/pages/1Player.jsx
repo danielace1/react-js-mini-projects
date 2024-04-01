@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 
 const XIcon = () => (
   <svg
@@ -40,6 +41,10 @@ const hoverX = (
 );
 
 const VsCPU = () => {
+  const location = useLocation();
+  const playerRole = location;
+  console.log(playerRole);
+
   const initialBoardState = [
     ["", "", ""],
     ["", "", ""],

@@ -1,6 +1,13 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 
 const HomePage = () => {
+  const [selection, setSelection] = useState(null);
+
+  const handleIconClick = (role) => {
+    setSelection(role);
+  };
+
   return (
     <div className="bg-zinc-800 p-20 min-h-screen">
       <div className="text-center space-y-5">
@@ -17,7 +24,12 @@ const HomePage = () => {
           </h2>
 
           <div className="bg-zinc-800 py-2.5 mt-8 mx-10 flex items-center rounded-lg">
-            <button className="w-full flex justify-center hover:bg-zinc-700 mx-3 hover:py-2.5 hover:rounded-lg transition-all hover:transition-all">
+            <button
+              onClick={() => handleIconClick("X")}
+              className={`w-full flex justify-center py-2.5 mx-3  ${
+                selection === "X" ? "bg-zinc-700" : ""
+              } hover:bg-zinc-700 mx-3 hover:py-2.5  rounded-lg hover:rounded-lg transition-all hover:transition-all`}
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -28,7 +40,12 @@ const HomePage = () => {
               </svg>
             </button>
 
-            <button className="w-full flex justify-center py-2.5 mx-3 bg-zinc-700 rounded-lg">
+            <button
+              onClick={() => handleIconClick("O")}
+              className={`w-full flex justify-center py-2.5 mx-3 ${
+                selection === "O" ? "bg-zinc-700" : ""
+              } hover:bg-zinc-700 mx-3 hover:py-2.5 rounded-lg hover:rounded-lg transition-all hover:transition-all`}
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -40,18 +57,54 @@ const HomePage = () => {
             </button>
           </div>
 
-          <div className="mt-5 text-gray-400 text-sm font-semibold">
+          <div className="mt-10 text-gray-400 text-xs font-semibold">
             REMEMBER : X GOES FIRST
           </div>
         </div>
 
         <div className="mx-auto max-w-lg space-y-5">
-          <button className="bg-amber-500 w-full px-10 py-3 text-white text-xl font-semibold rounded-lg shadow-lg border-b-2 border-b-amber-300 hover:bg-amber-600">
-            <Link to="/VsCpu">1 Player (VS CPU)</Link>
-          </button>
-          <button className="bg-blue-500 w-full px-10 py-3 text-white text-xl font-semibold rounded-lg shadow-lg border-b-2 border-b-blue-300 hover:bg-blue-600">
-            <Link to="/VsPlayer">2 Player (VS CPU)</Link>
-          </button>
+          <div>
+            <Link
+              to={
+                selection
+                  ? { pathname: "/VsCpu", state: { currentPlayer: selection } }
+                  : ""
+              }
+              className={`${!selection && "pointer-events-none"}`}
+            >
+              <button
+                className={`bg-amber-500 w-full px-10 py-3 text-white text-xl font-semibold rounded-lg shadow-lg border-b-2 border-b-amber-300 hover:bg-amber-600  ${
+                  !selection && "opacity-50"
+                } `}
+                onClick={() => selection && handleIconClick("X")}
+              >
+                1 Player (VS CPU)
+              </button>
+            </Link>
+          </div>
+
+          <div>
+            <Link
+              to={
+                selection
+                  ? {
+                      pathname: "/VsPlayer",
+                      state: { currentPlayer: selection },
+                    }
+                  : ""
+              }
+              className={`${!selection && "pointer-events-none"}`}
+            >
+              <button
+                onClick={() => selection && handleIconClick("O")}
+                className={`bg-blue-500 w-full px-10 py-3 text-white text-xl font-semibold rounded-lg shadow-lg border-b-2 border-b-blue-300 hover:bg-blue-600 ${
+                  !selection && "opacity-50"
+                }`}
+              >
+                2 Player (VS PLAYER)
+              </button>
+            </Link>
+          </div>
         </div>
       </div>
     </div>
