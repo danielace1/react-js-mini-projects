@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useState, useEffect, useContext } from "react";
+import { PlayerContext } from "../context/playerContext";
 
 const XIcon = () => (
   <svg
@@ -41,15 +41,14 @@ const hoverX = (
 );
 
 const VsCPU = () => {
-  const location = useLocation();
-  const playerRole = location;
-  console.log(playerRole);
-
   const initialBoardState = [
     ["", "", ""],
     ["", "", ""],
     ["", "", ""],
   ];
+
+  const role = useContext(PlayerContext);
+  console.log(role);
 
   const [hoveredCell, setHoveredCell] = useState(null);
   const [currentPlayer, setCurrentPlayer] = useState("X");
@@ -74,7 +73,7 @@ const VsCPU = () => {
     } else if (winner === "tie") {
       setTieScore((prevScore) => prevScore + 1);
     }
-  }, [board, cpuWinAlertShown]);
+  }, [board]);
 
   useEffect(() => {
     // Check if the game is over
