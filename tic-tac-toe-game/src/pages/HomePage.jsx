@@ -1,15 +1,32 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { PlayerContext } from "../context/playerContext";
 
 const HomePage = () => {
   const [selection, setSelection] = useState(null);
 
-  const role = {
-    role: selection,
-  };
+  useEffect(() => {
+    const currentplayer = localStorage.setItem(
+      "role",
+      JSON.stringify(selection)
+    );
 
-  console.log(role);
+    const role = localStorage.getItem("role");
+
+    console.log("current player:", role);
+
+    if (role) {
+      const player = JSON.parse(role);
+
+      const cpuplayer = localStorage.setItem(
+        "cpu",
+        JSON.stringify(player === "X" ? "O" : "X")
+      );
+
+      const cpu = localStorage.getItem("cpu");
+
+      console.log("cpu", cpu);
+    }
+  }, [selection]);
 
   const handleIconClick = (role) => {
     setSelection(role);
@@ -69,41 +86,39 @@ const HomePage = () => {
           </div>
         </div>
 
-        <PlayerContext.Provider value={role}>
-          <div className="mx-auto max-w-lg space-y-5">
-            <div>
-              <Link
-                to={selection ? { pathname: "/VsCpu" } : ""}
-                className={`${!selection && "pointer-events-none"}`}
+        <div className="mx-auto max-w-lg space-y-5">
+          <div>
+            <Link
+              to={selection ? { pathname: "/VsCpu" } : ""}
+              className={`${!selection && "pointer-events-none"}`}
+            >
+              <button
+                className={`bg-amber-500 w-full px-10 py-3 text-white text-xl font-semibold rounded-lg shadow-lg border-b-2 border-b-amber-300 hover:bg-amber-600  ${
+                  !selection && "opacity-50"
+                } `}
+                onClick={() => selection && handleIconClick("X")}
               >
-                <button
-                  className={`bg-amber-500 w-full px-10 py-3 text-white text-xl font-semibold rounded-lg shadow-lg border-b-2 border-b-amber-300 hover:bg-amber-600  ${
-                    !selection && "opacity-50"
-                  } `}
-                  onClick={() => selection && handleIconClick("X")}
-                >
-                  1 Player (VS CPU)
-                </button>
-              </Link>
-            </div>
-
-            <div>
-              <Link
-                to={selection ? { pathname: "/VsPlayer" } : ""}
-                className={`${!selection && "pointer-events-none"}`}
-              >
-                <button
-                  onClick={() => selection && handleIconClick("O")}
-                  className={`bg-blue-500 w-full px-10 py-3 text-white text-xl font-semibold rounded-lg shadow-lg border-b-2 border-b-blue-300 hover:bg-blue-600 ${
-                    !selection && "opacity-50"
-                  }`}
-                >
-                  2 Player (VS PLAYER)
-                </button>
-              </Link>
-            </div>
+                1 Player (VS CPU)
+              </button>
+            </Link>
           </div>
-        </PlayerContext.Provider>
+
+          <div>
+            <Link
+              to={selection ? { pathname: "/VsPlayer" } : ""}
+              className={`${!selection && "pointer-events-none"}`}
+            >
+              <button
+                onClick={() => selection && handleIconClick("O")}
+                className={`bg-blue-500 w-full px-10 py-3 text-white text-xl font-semibold rounded-lg shadow-lg border-b-2 border-b-blue-300 hover:bg-blue-600 ${
+                  !selection && "opacity-50"
+                }`}
+              >
+                2 Player (VS PLAYER)
+              </button>
+            </Link>
+          </div>
+        </div>
       </div>
     </div>
   );

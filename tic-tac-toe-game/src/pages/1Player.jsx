@@ -1,5 +1,4 @@
-import { useState, useEffect, useContext } from "react";
-import { PlayerContext } from "../context/playerContext";
+import { useState, useEffect } from "react";
 
 const XIcon = () => (
   <svg
@@ -40,6 +39,20 @@ const hoverX = (
   </svg>
 );
 
+const hoverO = (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 64 64"
+    className="stroke-current text-sky-500 h-11 w-11 mx-auto"
+  >
+    <path
+      fill="none"
+      strokeWidth="2"
+      d="M32 0c17.673 0 32 14.327 32 32 0 17.673-14.327 32-32 32C14.327 64 0 49.673 0 32 0 14.327 14.327 0 32 0Zm0 18.963c-7.2 0-13.037 5.837-13.037 13.037 0 7.2 5.837 13.037 13.037 13.037 7.2 0 13.037-5.837 13.037-13.037 0-7.2-5.837-13.037-13.037-13.037Z"
+    />
+  </svg>
+);
 const VsCPU = () => {
   const initialBoardState = [
     ["", "", ""],
@@ -47,11 +60,10 @@ const VsCPU = () => {
     ["", "", ""],
   ];
 
-  const role = useContext(PlayerContext);
-  console.log(role);
-
   const [hoveredCell, setHoveredCell] = useState(null);
-  const [currentPlayer, setCurrentPlayer] = useState("X");
+  const [currentPlayer, setCurrentPlayer] = useState("");
+  const [cpuPlayer, setCpuPlayer] = useState("");
+
   const [board, setBoard] = useState(initialBoardState);
 
   const [userScore, setUserScore] = useState(0);
@@ -75,7 +87,24 @@ const VsCPU = () => {
     }
   }, [board]);
 
+  // role of cpu
   useEffect(() => {
+    const role = localStorage.getItem("role");
+    console.log("current player:", role);
+
+    const cpu = localStorage.getItem("cpu");
+    console.log("cpu", cpu);
+
+    if (role) {
+      const player = JSON.parse(role);
+      setCurrentPlayer(player);
+    }
+
+    if (cpu) {
+      const cpuPlayer = JSON.parse(cpu);
+      setCpuPlayer(cpuPlayer);
+    }
+
     // Check if the game is over
     const winner = checkWinner(board);
     if (winner !== null || isBoardFull(board)) {
@@ -85,14 +114,12 @@ const VsCPU = () => {
           ["", "", ""],
           ["", "", ""],
           ["", "", ""],
-          setCurrentPlayer("X"),
-          setCpuShouldPlay(false),
         ]);
       }, 1000); // Adjust delay as needed
       setCpuShouldPlay(false);
       return;
     }
-    if (currentPlayer === "O" && cpuShouldPlay) {
+    if (cpuPlayer && cpuShouldPlay) {
       setCpuThinking(true);
       // Check if the board is full
       if (isBoardFull(board)) {
@@ -105,7 +132,7 @@ const VsCPU = () => {
         setCpuThinking(false);
       }, 600); // Adjust delay as needed
     }
-  }, [board, currentPlayer, cpuShouldPlay]);
+  }, [board, cpuShouldPlay, cpuPlayer]);
 
   // Function to check if the board is full
   const isBoardFull = (board) => {
@@ -134,7 +161,7 @@ const VsCPU = () => {
       for (let i = 0; i < 3; i++) {
         for (let j = 0; j < 3; j++) {
           if (board[i][j] === "") {
-            board[i][j] = "O";
+            board[i][j] = cpuPlayer;
             let moveVal = minimax(board, 0, false);
             board[i][j] = "";
             if (moveVal > bestVal) {
@@ -180,7 +207,7 @@ const VsCPU = () => {
       for (let i = 0; i < 3; i++) {
         for (let j = 0; j < 3; j++) {
           if (board[i][j] === "") {
-            board[i][j] = "O";
+            board[i][j] = cpuPlayer;
             let score = minimax(board, depth + 1, false);
             board[i][j] = "";
             bestScore = Math.max(score, bestScore);
@@ -193,7 +220,7 @@ const VsCPU = () => {
       for (let i = 0; i < 3; i++) {
         for (let j = 0; j < 3; j++) {
           if (board[i][j] === "") {
-            board[i][j] = "X";
+            board[i][j] = currentPlayer;
             let score = minimax(board, depth + 1, true);
             board[i][j] = "";
             bestScore = Math.min(score, bestScore);
@@ -269,7 +296,6 @@ const VsCPU = () => {
     if (newBoard[row][col] === "") {
       newBoard[row][col] = currentPlayer;
       setBoard(newBoard);
-      setCurrentPlayer(currentPlayer === "X" ? "O" : "X");
       setCpuShouldPlay(true);
       const winner = checkWinner(newBoard);
       if (winner) {
@@ -325,7 +351,7 @@ const VsCPU = () => {
 
   const handleRestart = () => {
     setBoard(initialBoardState);
-    setCurrentPlayer("X");
+    setCurrentPlayer(currentPlayer);
   };
 
   return (
