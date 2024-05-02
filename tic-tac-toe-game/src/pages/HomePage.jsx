@@ -9,23 +9,6 @@ const HomePage = () => {
       "role",
       JSON.stringify(selection)
     );
-
-    const role = localStorage.getItem("role");
-
-    console.log("current player:", role);
-
-    if (role) {
-      const player = JSON.parse(role);
-
-      const cpuplayer = localStorage.setItem(
-        "cpu",
-        JSON.stringify(player === "X" ? "O" : "X")
-      );
-
-      const cpu = localStorage.getItem("cpu");
-
-      console.log("cpu", cpu);
-    }
   }, [selection]);
 
   const handleIconClick = (role) => {

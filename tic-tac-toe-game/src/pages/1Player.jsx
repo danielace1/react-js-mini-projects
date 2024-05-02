@@ -92,17 +92,13 @@ const VsCPU = () => {
     const role = localStorage.getItem("role");
     console.log("current player:", role);
 
-    const cpu = localStorage.getItem("cpu");
-    console.log("cpu", cpu);
-
     if (role) {
       const player = JSON.parse(role);
       setCurrentPlayer(player);
-    }
 
-    if (cpu) {
-      const cpuPlayer = JSON.parse(cpu);
+      const cpuPlayer = player === "X" ? "O" : "X";
       setCpuPlayer(cpuPlayer);
+      console.log("CPu player", cpuPlayer);
     }
 
     // Check if the game is over
@@ -110,21 +106,20 @@ const VsCPU = () => {
     if (winner !== null || isBoardFull(board)) {
       // Game over, reset the board
       setTimeout(() => {
-        setBoard([
-          ["", "", ""],
-          ["", "", ""],
-          ["", "", ""],
-        ]);
+        setBoard(initialBoardState);
+        setCpuShouldPlay(false);
       }, 1000); // Adjust delay as needed
       setCpuShouldPlay(false);
       return;
     }
-    if (cpuPlayer && cpuShouldPlay) {
+
+    if (currentPlayer === cpuPlayer && cpuShouldPlay) {
       setCpuThinking(true);
       // Check if the board is full
       if (isBoardFull(board)) {
         return; // If board is full, stop playing
       }
+
       // Make the computer's move
       setTimeout(() => {
         const bestMove = findBestMove(board);
@@ -132,7 +127,7 @@ const VsCPU = () => {
         setCpuThinking(false);
       }, 600); // Adjust delay as needed
     }
-  }, [board, cpuShouldPlay, cpuPlayer]);
+  }, [board, cpuShouldPlay, currentPlayer, cpuPlayer]);
 
   // Function to check if the board is full
   const isBoardFull = (board) => {
@@ -149,7 +144,7 @@ const VsCPU = () => {
   // Algorithm for finding best move
   const findBestMove = (board) => {
     let bestMove;
-    const difficultyThreshold = 0.7; // Adjust this value based on desired difficulty
+    const difficultyThreshold = 0.9; // Adjust this value based on desired difficulty
 
     // Generate a random number between 0 and 1
     const randomProbability = Math.random();
@@ -161,7 +156,7 @@ const VsCPU = () => {
       for (let i = 0; i < 3; i++) {
         for (let j = 0; j < 3; j++) {
           if (board[i][j] === "") {
-            board[i][j] = cpuPlayer;
+            board[i][j] = "O";
             let moveVal = minimax(board, 0, false);
             board[i][j] = "";
             if (moveVal > bestVal) {
@@ -207,7 +202,7 @@ const VsCPU = () => {
       for (let i = 0; i < 3; i++) {
         for (let j = 0; j < 3; j++) {
           if (board[i][j] === "") {
-            board[i][j] = cpuPlayer;
+            board[i][j] = "O";
             let score = minimax(board, depth + 1, false);
             board[i][j] = "";
             bestScore = Math.max(score, bestScore);
@@ -220,7 +215,7 @@ const VsCPU = () => {
       for (let i = 0; i < 3; i++) {
         for (let j = 0; j < 3; j++) {
           if (board[i][j] === "") {
-            board[i][j] = currentPlayer;
+            board[i][j] = "X";
             let score = minimax(board, depth + 1, true);
             board[i][j] = "";
             bestScore = Math.min(score, bestScore);
@@ -296,6 +291,7 @@ const VsCPU = () => {
     if (newBoard[row][col] === "") {
       newBoard[row][col] = currentPlayer;
       setBoard(newBoard);
+      setCurrentPlayer(currentPlayer === "X" ? "O" : "X");
       setCpuShouldPlay(true);
       const winner = checkWinner(newBoard);
       if (winner) {
