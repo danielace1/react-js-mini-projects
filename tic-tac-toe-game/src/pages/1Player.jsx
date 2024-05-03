@@ -99,6 +99,11 @@ const VsCPU = () => {
       const cpuPlayer = player === "X" ? "O" : "X";
       setCpuPlayer(cpuPlayer);
       console.log("CPu player", cpuPlayer);
+
+      if (cpuPlayer === "X") {
+        // If the CPU is X, it should play first
+        setCpuShouldPlay(true);
+      }
     }
 
     // Check if the game is over
@@ -107,13 +112,13 @@ const VsCPU = () => {
       // Game over, reset the board
       setTimeout(() => {
         setBoard(initialBoardState);
-        setCpuShouldPlay(false);
       }, 1000); // Adjust delay as needed
       setCpuShouldPlay(false);
       return;
     }
 
     if (currentPlayer === cpuPlayer && cpuShouldPlay) {
+      console.log("Hi");
       setCpuThinking(true);
       // Check if the board is full
       if (isBoardFull(board)) {
@@ -122,12 +127,16 @@ const VsCPU = () => {
 
       // Make the computer's move
       setTimeout(() => {
-        const bestMove = findBestMove(board);
-        handleCellClick(bestMove.row, bestMove.col);
-        setCpuThinking(false);
+        makeCpuMove();
       }, 600); // Adjust delay as needed
     }
   }, [board, cpuShouldPlay, currentPlayer, cpuPlayer]);
+
+  const makeCpuMove = () => {
+    const bestMove = findBestMove(board);
+    handleCellClick(bestMove.row, bestMove.col);
+    setCpuThinking(false);
+  };
 
   // Function to check if the board is full
   const isBoardFull = (board) => {
@@ -292,7 +301,7 @@ const VsCPU = () => {
       newBoard[row][col] = currentPlayer;
       setBoard(newBoard);
       setCurrentPlayer(currentPlayer === "X" ? "O" : "X");
-      setCpuShouldPlay(true);
+
       const winner = checkWinner(newBoard);
       if (winner) {
         let message;
@@ -304,6 +313,10 @@ const VsCPU = () => {
         setTimeout(() => {
           alert(message);
         }, 200); // Delay the alert to ensure the last move is rendered
+      }
+      // If CPU is X and currentPlayer is CPU, make CPU move
+      if (cpuPlayer === "X" && currentPlayer === cpuPlayer && !winner) {
+        makeCpuMove();
       }
     }
   };
