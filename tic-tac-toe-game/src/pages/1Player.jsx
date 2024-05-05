@@ -297,10 +297,9 @@ const VsCPU = () => {
 
   const handleCellClick = (row, col) => {
     const newBoard = [...board];
-    if (newBoard[row][col] === "") {
+    if (newBoard[row][col] === "" && !checkWinner(newBoard)) {
       newBoard[row][col] = currentPlayer;
       setBoard(newBoard);
-      setCurrentPlayer(currentPlayer === "X" ? "O" : "X");
 
       const winner = checkWinner(newBoard);
       if (winner) {
@@ -313,10 +312,12 @@ const VsCPU = () => {
         setTimeout(() => {
           alert(message);
         }, 200); // Delay the alert to ensure the last move is rendered
-      }
-      // If CPU is X and currentPlayer is CPU, make CPU move
-      if (cpuPlayer === "X" && currentPlayer === cpuPlayer && !winner) {
-        makeCpuMove();
+      } else {
+        setCurrentPlayer(currentPlayer === "X" ? "O" : "X");
+        if (cpuPlayer === "X" && !cpuShouldPlay) {
+          // If CPU is X and it hasn't played yet, CPU should play next
+          setCpuShouldPlay(true);
+        }
       }
     }
   };
