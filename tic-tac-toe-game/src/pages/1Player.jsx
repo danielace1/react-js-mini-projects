@@ -96,20 +96,16 @@ const VsCPU = () => {
       const player = JSON.parse(role);
       setCurrentPlayer(player);
 
-      const cpuPlayer = player === "X" ? "O" : "X";
+      const cpuPlayer = player === "O" ? "X" : "O";
       setCpuPlayer(cpuPlayer);
       console.log("CPu player", cpuPlayer);
-
-      if (cpuPlayer === "X") {
-        // If the CPU is X, it should play first
-        setCpuShouldPlay(true);
-      }
+      setCpuShouldPlay(true);
     }
 
     // Check if the game is over
     const winner = checkWinner(board);
     if (winner !== null || isBoardFull(board)) {
-      // Game over, reset the board
+      // Game over, resest the board
       setTimeout(() => {
         setBoard(initialBoardState);
       }, 1000); // Adjust delay as needed
@@ -118,7 +114,6 @@ const VsCPU = () => {
     }
 
     if (currentPlayer === cpuPlayer && cpuShouldPlay) {
-      console.log("Hi");
       setCpuThinking(true);
       // Check if the board is full
       if (isBoardFull(board)) {
