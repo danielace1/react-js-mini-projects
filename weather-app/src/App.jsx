@@ -2,13 +2,13 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import SearchBar from "./components/SearchBar";
 import WeatherCard from "./components/WeatherCard";
-import ForecastCard from "./components/ForecastCard"; // ✅ import
+import ForecastCard from "./components/ForecastCard";
 import Loader from "./components/Loader";
 import ErrorMessage from "./components/ErrorMessage";
 
 function App() {
   const [weather, setWeather] = useState(null);
-  const [forecast, setForecast] = useState(null); // ✅ new state
+  const [forecast, setForecast] = useState(null); 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
