@@ -12,6 +12,8 @@ const VideoChat = () => {
   }
 
   useEffect(() => {
+    let zp;
+
     const params = getUrlParams();
     const roomIDFromParams =
       params.get("roomID") || "room_" + Math.floor(Math.random() * 1000);
@@ -34,35 +36,30 @@ const VideoChat = () => {
       generatedUserName
     );
 
-    const zp = ZegoUIKitPrebuilt.create(kitToken);
-    zp.joinRoom(
-      {
-        container: document.querySelector("#zego-container"),
-        sharedLinks: [
-          {
-            url: `${window.location.origin}${window.location.pathname}?roomID=${roomIDFromParams}`,
-          },
-        ],
-        scenario: {
-          mode: ZegoUIKitPrebuilt.OneONoneCallGroupCall,
-        },
+    zp = ZegoUIKitPrebuilt.create(kitToken);
 
-        turnOnCameraWhenJoining: false,
-        deviceSettings: true,
-        userListEnabled: true,
-        notification: {
-          userOnlineOfflineTips: true,
-          unreadMessageTips: true,
+    zp.joinRoom({
+      container: document.querySelector("#zego-container"),
+      sharedLinks: [
+        {
+          url: `${window.location.origin}${window.location.pathname}?roomID=${roomIDFromParams}`,
         },
+      ],
+      scenario: {
+        mode: ZegoUIKitPrebuilt.OneONoneCall,
       },
-      (error) => {
-        if (error) {
-          console.error("Failed to join room:", error);
-        } else {
-          console.log("Successfully joined the room");
+      turnOnCameraWhenJoining: false,
+    });
+
+    return () => {
+      if (zp) {
+        try {
+          zp.destroy();
+        } catch (err) {
+          console.warn("Zego destroy warning:", err);
         }
       }
-    );
+    };
   }, []);
 
   return <div id="zego-container"></div>;

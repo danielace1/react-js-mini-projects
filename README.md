@@ -6,3 +6,5 @@ Simple and cool react-js mini-projects.
 2. [tic-tac-toe-game](./tic-tac-toe-game/)
 3. [weather-app](./weather-app/)
 4. [react-zego-cloud](./react-zego-cloud/)
+5. [react-admin-dashboard](./react-admin-dashboard/)
+6. [react-oauth-firebase](./react-oauth-firebase/)
