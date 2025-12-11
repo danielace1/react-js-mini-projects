@@ -1,456 +1,233 @@
 import { useState, useEffect } from "react";
+import XIcon from "../components/XIcon";
+import OIcon from "../components/OIcon";
 
-const XIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    fill="none"
-    viewBox="0 0 64 64"
-    className="fill-current text-amber-500 h-11 w-11 mx-auto"
-  >
-    <path d="M15.002 1.147 32 18.145 48.998 1.147a3 3 0 0 1 4.243 0l9.612 9.612a3 3 0 0 1 0 4.243L45.855 32l16.998 16.998a3 3 0 0 1 0 4.243l-9.612 9.612a3 3 0 0 1-4.243 0L32 45.855 15.002 62.853a3 3 0 0 1-4.243 0L1.147 53.24a3 3 0 0 1 0-4.243L18.145 32 1.147 15.002a3 3 0 0 1 0-4.243l9.612-9.612a3 3 0 0 1 4.243 0Z"></path>
-  </svg>
-);
+const HoverX = () => <XIcon size="h-10 w-10 opacity-40" />;
+const HoverO = () => <OIcon size="h-10 w-10 opacity-40" />;
 
-const OIcon = () => {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 64 64"
-      className="fill-current text-sky-500 h-11 w-11 mx-auto"
-    >
-      <path d="M32 0c17.673 0 32 14.327 32 32 0 17.673-14.327 32-32 32C14.327 64 0 49.673 0 32 0 14.327 14.327 0 32 0Zm0 18.963c-7.2 0-13.037 5.837-13.037 13.037 0 7.2 5.837 13.037 13.037 13.037 7.2 0 13.037-5.837 13.037-13.037 0-7.2-5.837-13.037-13.037-13.037Z"></path>
-    </svg>
-  );
-};
-
-const hoverX = (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    fill="none"
-    viewBox="0 0 64 64"
-    className="stroke-current text-amber-500 h-11 w-11 mx-auto"
-  >
-    <path
-      fill="none"
-      strokeWidth="2"
-      d="M15.002 1.147 32 18.145 48.998 1.147a3 3 0 0 1 4.243 0l9.612 9.612a3 3 0 0 1 0 4.243L45.855 32l16.998 16.998a3 3 0 0 1 0 4.243l-9.612 9.612a3 3 0 0 1-4.243 0L32 45.855 15.002 62.853a3 3 0 0 1-4.243 0L1.147 53.24a3 3 0 0 1 0-4.243L18.145 32 1.147 15.002a3 3 0 0 1 0-4.243l9.612-9.612a3 3 0 0 1 4.243 0Z"
-    />
-  </svg>
-);
-
-const hoverO = (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    fill="none"
-    viewBox="0 0 64 64"
-    className="stroke-current text-sky-500 h-11 w-11 mx-auto"
-  >
-    <path
-      fill="none"
-      strokeWidth="2"
-      d="M32 0c17.673 0 32 14.327 32 32 0 17.673-14.327 32-32 32C14.327 64 0 49.673 0 32 0 14.327 14.327 0 32 0Zm0 18.963c-7.2 0-13.037 5.837-13.037 13.037 0 7.2 5.837 13.037 13.037 13.037 7.2 0 13.037-5.837 13.037-13.037 0-7.2-5.837-13.037-13.037-13.037Z"
-    />
-  </svg>
-);
 const VsCPU = () => {
-  const initialBoardState = [
-    ["", "", ""],
-    ["", "", ""],
-    ["", "", ""],
-  ];
+  const emptyBoard = Array(3)
+    .fill(null)
+    .map(() => Array(3).fill(""));
 
-  const [hoveredCell, setHoveredCell] = useState(null);
-  const [currentPlayer, setCurrentPlayer] = useState("");
-  const [cpuPlayer, setCpuPlayer] = useState("");
+  const role = JSON.parse(localStorage.getItem("role"));
+  const userPlayer = role || "X";
+  const cpuPlayer = userPlayer === "X" ? "O" : "X";
 
-  const [board, setBoard] = useState(initialBoardState);
+  const [board, setBoard] = useState(emptyBoard);
+  const [currentPlayer, setCurrentPlayer] = useState("X");
+  const [hover, setHover] = useState(null);
 
   const [userScore, setUserScore] = useState(0);
   const [cpuScore, setCpuScore] = useState(0);
   const [tieScore, setTieScore] = useState(0);
-  const [cpuWinAlertShown, setCpuWinAlertShown] = useState(false); // Flag to track CPU win alert
+
   const [cpuThinking, setCpuThinking] = useState(false);
-  const [cpuShouldPlay, setCpuShouldPlay] = useState(false);
 
-  // For Scores
-  useEffect(() => {
-    // Check for winner or tie and update scores
-    const winner = checkWinner(board);
-    if (winner === "X") {
-      setUserScore((prevScore) => prevScore + 1);
-    } else if (winner === "O") {
-      setCpuScore((prevScore) => prevScore + 1);
-      setCpuWinAlertShown(true); // Set flag to true after showing alert and incrementing score
-    } else if (winner === "tie") {
-      setTieScore((prevScore) => prevScore + 1);
-    }
-  }, [board]);
+  const checkWinner = (b) => {
+    const lines = [
+      ...b,
+      [b[0][0], b[1][0], b[2][0]],
+      [b[0][1], b[1][1], b[2][1]],
+      [b[0][2], b[1][2], b[2][2]],
+      [b[0][0], b[1][1], b[2][2]],
+      [b[0][2], b[1][1], b[2][0]],
+    ];
 
-  // role of cpu
-  useEffect(() => {
-    const role = localStorage.getItem("role");
-    console.log("current player:", role);
-
-    if (role) {
-      const player = JSON.parse(role);
-      setCurrentPlayer(player);
-
-      const cpuPlayer = player === "O" ? "X" : "O";
-      setCpuPlayer(cpuPlayer);
-      console.log("CPu player", cpuPlayer);
-      setCpuShouldPlay(true);
+    for (let line of lines) {
+      if (line.every((v) => v === "X")) return "X";
+      if (line.every((v) => v === "O")) return "O";
     }
 
-    // Check if the game is over
-    const winner = checkWinner(board);
-    if (winner !== null || isBoardFull(board)) {
-      // Game over, resest the board
-      setTimeout(() => {
-        setBoard(initialBoardState);
-      }, 1000); // Adjust delay as needed
-      setCpuShouldPlay(false);
-      return;
-    }
-
-    if (currentPlayer === cpuPlayer && cpuShouldPlay) {
-      setCpuThinking(true);
-      // Check if the board is full
-      if (isBoardFull(board)) {
-        return; // If board is full, stop playing
-      }
-
-      // Make the computer's move
-      setTimeout(() => {
-        makeCpuMove();
-      }, 600); // Adjust delay as needed
-    }
-  }, [board, cpuShouldPlay, currentPlayer, cpuPlayer]);
-
-  const makeCpuMove = () => {
-    const bestMove = findBestMove(board);
-    handleCellClick(bestMove.row, bestMove.col);
-    setCpuThinking(false);
-  };
-
-  // Function to check if the board is full
-  const isBoardFull = (board) => {
-    for (let i = 0; i < 3; i++) {
-      for (let j = 0; j < 3; j++) {
-        if (board[i][j] === "") {
-          return false;
-        }
-      }
-    }
-    return true;
-  };
-
-  // Algorithm for finding best move
-  const findBestMove = (board) => {
-    let bestMove;
-    const difficultyThreshold = 0.9; // Adjust this value based on desired difficulty
-
-    // Generate a random number between 0 and 1
-    const randomProbability = Math.random();
-
-    if (randomProbability < difficultyThreshold) {
-      // Play at very difficult level
-      let bestVal = -Infinity;
-
-      for (let i = 0; i < 3; i++) {
-        for (let j = 0; j < 3; j++) {
-          if (board[i][j] === "") {
-            board[i][j] = "O";
-            let moveVal = minimax(board, 0, false);
-            board[i][j] = "";
-            if (moveVal > bestVal) {
-              bestMove = { row: i, col: j };
-              bestVal = moveVal;
-            }
-          }
-        }
-      }
-    } else {
-      // Allow user to win occasionally
-      // Find all available empty cells
-      const emptyCells = [];
-      for (let i = 0; i < 3; i++) {
-        for (let j = 0; j < 3; j++) {
-          if (board[i][j] === "") {
-            emptyCells.push({ row: i, col: j });
-          }
-        }
-      }
-      // Randomly select one of the empty cells
-      bestMove = emptyCells[Math.floor(Math.random() * emptyCells.length)];
-    }
-
-    return bestMove;
-  };
-
-  const scores = {
-    X: -1,
-    O: 1,
-    tie: 0,
+    return b.flat().every((v) => v !== "") ? "tie" : null;
   };
 
   // Minimax Algorithm
-  const minimax = (board, depth, isMaximizing) => {
-    const result = checkWinner(board);
-    if (result !== null) {
-      return scores[result];
+  const scores = {
+    [cpuPlayer]: 1,
+    [userPlayer]: -1,
+    tie: 0,
+  };
+
+  const minimax = (b, isMaximizing) => {
+    const winner = checkWinner(b);
+    if (winner !== null) return scores[winner];
+
+    let best = isMaximizing ? -Infinity : Infinity;
+
+    for (let r = 0; r < 3; r++) {
+      for (let c = 0; c < 3; c++) {
+        if (b[r][c] === "") {
+          const newBoard = structuredClone(b);
+          newBoard[r][c] = isMaximizing ? cpuPlayer : userPlayer;
+          const score = minimax(newBoard, !isMaximizing);
+          best = isMaximizing ? Math.max(best, score) : Math.min(best, score);
+        }
+      }
     }
 
-    if (isMaximizing) {
-      let bestScore = -Infinity;
-      for (let i = 0; i < 3; i++) {
-        for (let j = 0; j < 3; j++) {
-          if (board[i][j] === "") {
-            board[i][j] = "O";
-            let score = minimax(board, depth + 1, false);
-            board[i][j] = "";
-            bestScore = Math.max(score, bestScore);
+    return best;
+  };
+
+  const findBestMove = (b) => {
+    let bestScore = -Infinity;
+    let move = null;
+
+    // Difficulty tuning (0.9 = 90% smart, 10% random)
+    if (Math.random() > 0.9) {
+      const empty = [];
+      b.forEach((row, r) =>
+        row.forEach((cell, c) => {
+          if (!cell) empty.push({ r, c });
+        })
+      );
+      return empty[Math.floor(Math.random() * empty.length)];
+    }
+
+    for (let r = 0; r < 3; r++) {
+      for (let c = 0; c < 3; c++) {
+        if (b[r][c] === "") {
+          const newBoard = structuredClone(b);
+          newBoard[r][c] = cpuPlayer;
+          const score = minimax(newBoard, false);
+          if (score > bestScore) {
+            bestScore = score;
+            move = { r, c };
           }
         }
       }
-      return bestScore;
-    } else {
-      let bestScore = Infinity;
-      for (let i = 0; i < 3; i++) {
-        for (let j = 0; j < 3; j++) {
-          if (board[i][j] === "") {
-            board[i][j] = "X";
-            let score = minimax(board, depth + 1, true);
-            board[i][j] = "";
-            bestScore = Math.min(score, bestScore);
-          }
-        }
-      }
-      return bestScore;
     }
+
+    return move;
   };
 
-  // Checking Winner
-  const checkWinner = (board) => {
-    // Check rows
-    for (let i = 0; i < 3; i++) {
-      if (
-        board[i][0] !== "" &&
-        board[i][0] === board[i][1] &&
-        board[i][1] === board[i][2]
-      ) {
-        return board[i][0];
-      }
-    }
-
-    // Check columns
-    for (let i = 0; i < 3; i++) {
-      if (
-        board[0][i] !== "" &&
-        board[0][i] === board[1][i] &&
-        board[1][i] === board[2][i]
-      ) {
-        return board[0][i];
-      }
-    }
-
-    // Check diagonals
-    if (
-      board[0][0] !== "" &&
-      board[0][0] === board[1][1] &&
-      board[1][1] === board[2][2]
-    ) {
-      return board[0][0];
-    }
-    if (
-      board[0][2] !== "" &&
-      board[0][2] === board[1][1] &&
-      board[1][1] === board[2][0]
-    ) {
-      return board[0][2];
-    }
-
-    // Check for tie
-    let isFull = true;
-    for (let i = 0; i < 3; i++) {
-      for (let j = 0; j < 3; j++) {
-        if (board[i][j] === "") {
-          isFull = false;
-          break;
-        }
-      }
-      if (!isFull) {
-        break;
-      }
-    }
-    if (isFull) {
-      return "tie";
-    }
-    // If no winner and the board is not full, return null
-    return null;
-  };
-
-  const handleCellClick = (row, col) => {
-    const newBoard = [...board];
-    if (newBoard[row][col] === "" && !checkWinner(newBoard)) {
-      newBoard[row][col] = currentPlayer;
-      setBoard(newBoard);
-
-      const winner = checkWinner(newBoard);
-      if (winner) {
-        let message;
-        if (winner === "tie") {
-          message = "It's a tie!";
-        } else {
-          message = `${winner} wins!`;
-        }
+  useEffect(() => {
+    const winner = checkWinner(board);
+    if (!winner) {
+      if (currentPlayer === cpuPlayer) {
+        setCpuThinking(true);
         setTimeout(() => {
-          alert(message);
-        }, 200); // Delay the alert to ensure the last move is rendered
-      } else {
-        setCurrentPlayer(currentPlayer === "X" ? "O" : "X");
-        if (cpuPlayer === "X" && !cpuShouldPlay) {
-          // If CPU is X and it hasn't played yet, CPU should play next
-          setCpuShouldPlay(true);
-        }
+          const move = findBestMove(board);
+          playMove(move.r, move.c, cpuPlayer);
+          setCpuThinking(false);
+        }, 600);
       }
+      return;
     }
+
+    // Update scores
+    if (winner === userPlayer) setUserScore((x) => x + 1);
+    else if (winner === cpuPlayer) setCpuScore((x) => x + 1);
+    else setTieScore((x) => x + 1);
+
+    setTimeout(() => {
+      alert(winner === "tie" ? "It's a tie!" : `${winner} wins!`);
+      restartGame();
+    }, 200);
+  }, [board, currentPlayer]);
+
+  const playMove = (r, c, player) => {
+    if (board[r][c] !== "") return;
+
+    const newBoard = structuredClone(board);
+    newBoard[r][c] = player;
+
+    setBoard(newBoard);
+    setCurrentPlayer((p) => (p === "X" ? "O" : "X"));
   };
 
-  const handleCellHover = (row, col) => {
-    setHoveredCell({ row, col });
+  const restartGame = () => {
+    setBoard(emptyBoard);
+    setCurrentPlayer("X");
   };
 
-  const renderCell = (row, col) => {
-    const cellValue = board[row][col];
-    const isHovered =
-      hoveredCell && hoveredCell.row === row && hoveredCell.col === col;
+  const renderCell = (r, c) => {
+    const val = board[r][c];
+    const isHover =
+      !cpuThinking &&
+      currentPlayer === userPlayer &&
+      hover?.r === r &&
+      hover?.c === c &&
+      !val;
+
     return (
-      <td
-        key={`${row}-${col}`}
-        className="table-cell hover:cursor-pointer"
-        onClick={() => handleCellClick(row, col)}
-        onMouseEnter={() => handleCellHover(row, col)}
-        onMouseLeave={() => setHoveredCell(null)}
+      <div
+        key={r + "-" + c}
+        className="aspect-square bg-zinc-700 rounded-lg flex items-center justify-center cursor-pointer hover:bg-zinc-600 transition"
+        onMouseEnter={() => setHover({ r, c })}
+        onMouseLeave={() => setHover(null)}
+        onClick={() => {
+          if (cpuThinking) return;
+          if (currentPlayer !== userPlayer) return;
+          playMove(r, c, userPlayer);
+        }}
       >
-        {isHovered && !cellValue && hoverX}
-        {cellValue === "X" && <XIcon />}
-        {cellValue === "O" && <OIcon />}
-      </td>
+        {val === "X" && <XIcon />}
+        {val === "O" && <OIcon />}
+
+        {!val && isHover && (userPlayer === "X" ? <HoverX /> : <HoverO />)}
+      </div>
     );
-  };
-
-  // Function to render each row in the table
-  const renderRow = (rowIndex) => {
-    return (
-      <tr key={rowIndex}>
-        {[0, 1, 2].map((colIndex) => renderCell(rowIndex, colIndex))}
-      </tr>
-    );
-  };
-
-  // Function to render the entire game board
-  const renderBoard = () => {
-    return <tbody>{[0, 1, 2].map((rowIndex) => renderRow(rowIndex))}</tbody>;
-  };
-
-  const handleRestart = () => {
-    setBoard(initialBoardState);
-    setCurrentPlayer(currentPlayer);
   };
 
   return (
-    <div className="bg-zinc-800 p-10 min-h-screen">
-      <div className="mx-auto max-w-[480px] text-white">
-        <div className="flex items-center justify-between space-x-5 ml-6 mt-4">
-          <div className="flex items-center space-x-3">
-            <div>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 64 64"
-                className="fill-current text-amber-500 h-7 w-7"
-              >
-                <path d="M15.002 1.147 32 18.145 48.998 1.147a3 3 0 0 1 4.243 0l9.612 9.612a3 3 0 0 1 0 4.243L45.855 32l16.998 16.998a3 3 0 0 1 0 4.243l-9.612 9.612a3 3 0 0 1-4.243 0L32 45.855 15.002 62.853a3 3 0 0 1-4.243 0L1.147 53.24a3 3 0 0 1 0-4.243L18.145 32 1.147 15.002a3 3 0 0 1 0-4.243l9.612-9.612a3 3 0 0 1 4.243 0Z"></path>
-              </svg>
-            </div>
-            <div>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 64 64"
-                className="fill-current text-sky-500 h-7 w-7"
-              >
-                <path d="M32 0c17.673 0 32 14.327 32 32 0 17.673-14.327 32-32 32C14.327 64 0 49.673 0 32 0 14.327 14.327 0 32 0Zm0 18.963c-7.2 0-13.037 5.837-13.037 13.037 0 7.2 5.837 13.037 13.037 13.037 7.2 0 13.037-5.837 13.037-13.037 0-7.2-5.837-13.037-13.037-13.037Z"></path>
-              </svg>
-            </div>
+    <div className="bg-zinc-800 min-h-screen p-5 md:p-10 flex justify-center">
+      <div className="text-white w-full max-w-md mx-auto space-y-8">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div className="flex space-x-3">
+            <XIcon size="h-7 w-7" />
+            <OIcon size="h-7 w-7" />
           </div>
 
-          <div className="flex items-center bg-zinc-700 px-5 py-2 rounded-lg border-b border-gray-500">
+          <div className="bg-zinc-700 flex items-center px-4 py-2 rounded-lg border-b border-gray-600">
             {currentPlayer === "X" ? (
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 64 64"
-                className="fill-current text-white h-5 w-5 mr-2"
-              >
-                <path d="M15.002 1.147 32 18.145 48.998 1.147a3 3 0 0 1 4.243 0l9.612 9.612a3 3 0 0 1 0 4.243L45.855 32l16.998 16.998a3 3 0 0 1 0 4.243l-9.612 9.612a3 3 0 0 1-4.243 0L32 45.855 15.002 62.853a3 3 0 0 1-4.243 0L1.147 53.24a3 3 0 0 1 0-4.243L18.145 32 1.147 15.002a3 3 0 0 1 0-4.243l9.612-9.612a3 3 0 0 1 4.243 0Z"></path>
-              </svg>
+              <XIcon size="h-5 w-5 mr-1" />
             ) : (
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 64 64"
-                className="fill-current text-white h-5 w-5 mr-2"
-              >
-                <path d="M32 0c17.673 0 32 14.327 32 32 0 17.673-14.327 32-32 32C14.327 64 0 49.673 0 32 0 14.327 14.327 0 32 0Zm0 18.963c-7.2 0-13.037 5.837-13.037 13.037 0 7.2 5.837 13.037 13.037 13.037 7.2 0 13.037-5.837 13.037-13.037 0-7.2-5.837-13.037-13.037-13.037Z"></path>
-              </svg>
+              <OIcon size="h-5 w-5 mr-1" />
             )}
             TURN
           </div>
 
           <button
-            onClick={() => handleRestart()}
-            className="bg-zinc-500 p-2 !mr-5 rounded-lg hover:cursor-pointer hover:bg-zinc-600"
+            onClick={restartGame}
+            className="bg-zinc-600 hover:bg-zinc-500 p-2 rounded-lg transition"
+            title="Restart Game"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="34"
-              height="34"
-              viewBox="0 0 24 24"
-              className="fill-current font-semibold"
-            >
-              <path d="M12 20q-3.35 0-5.675-2.325T4 12q0-3.35 2.325-5.675T12 4q1.725 0 3.3.712T18 6.75V5q0-.425.288-.712T19 4q.425 0 .713.288T20 5v5q0 .425-.288.713T19 11h-5q-.425 0-.712-.288T13 10q0-.425.288-.712T14 9h3.2q-.8-1.4-2.187-2.2T12 6Q9.5 6 7.75 7.75T6 12q0 2.5 1.75 4.25T12 18q1.7 0 3.113-.862t2.187-2.313q.2-.35.563-.487t.737-.013q.4.125.575.525t-.025.75q-1.025 2-2.925 3.2T12 20"></path>
+            <svg width="26" height="26" fill="currentColor">
+              <path d="M12 20q-3.35 0-5.675-2.325T4 12q0-3.35 2.325-5.675T12 4q1.725 0 3.3.712T18 6.75V5h2v5h-5v-2h3.2q-.8-1.4-2.187-2.2T12 6Q9.5 6 7.75 7.75T6 12q0 2.5 1.75 4.25T12 18q1.7 0 3.113-.862t2.187-2.313l1.3.75q-1.025 2-2.925 3.2T12 20" />
             </svg>
           </button>
         </div>
 
-        <table className="w-full border-separate border-spacing-5">
-          {renderBoard()}
-        </table>
+        {/* Game Grid */}
+        <div className="grid grid-cols-3 gap-4">
+          {[0, 1, 2].map((r) => [0, 1, 2].map((c) => renderCell(r, c)))}
+        </div>
 
-        <div className="flex items-center justify-between ml-6">
-          <div className="flex flex-col items-center bg-amber-500 px-8 py-3 rounded-lg shadow">
-            <span className="text-sm tracking-widest"> X (YOU)</span>
-            <h1 className="text-xl font-semibold">{userScore}</h1>
+        {/* Scoreboard */}
+        <div className="grid grid-cols-3 gap-4 text-center font-semibold">
+          <div className="bg-amber-500 rounded-lg py-3">
+            <div className="text-sm">YOU ({userPlayer})</div>
+            <div className="text-xl font-bold">{userScore}</div>
           </div>
-          <div className="flex flex-col items-center bg-zinc-500 px-11 py-3 rounded-lg shadow">
-            <span className="text-sm tracking-widest">TIES</span>
-            <h1 className="text-xl font-semibold">{tieScore}</h1>
+
+          <div className="bg-zinc-500 rounded-lg py-3">
+            <div className="text-sm">TIES</div>
+            <div className="text-xl font-bold">{tieScore}</div>
           </div>
-          <div className="flex flex-col items-center bg-sky-500 px-8 py-3 !mr-5  rounded-lg shadow">
-            <span className="text-sm tracking-widest"> O (CPU)</span>
-            <h1 className="text-xl font-semibold">{cpuScore}</h1>
+
+          <div className="bg-sky-500 rounded-lg py-3">
+            <div className="text-sm">CPU ({cpuPlayer})</div>
+            <div className="text-xl font-bold">{cpuScore}</div>
           </div>
         </div>
 
-        <div
-          className={`mt-5 text-gray-300 animate-pulse text-center ${
-            cpuThinking ? "" : "hidden"
-          } `}
-        >
-          Your opponent is thinking...
-        </div>
+        {cpuThinking && (
+          <p className="text-center text-gray-300 animate-pulse">
+            CPU is thinking…
+          </p>
+        )}
       </div>
     </div>
   );
